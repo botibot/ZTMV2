@@ -1,35 +1,66 @@
 import { Component } from "react";
-
-import logo from "./logo.svg";
+/* import logo from "./logo.svg"; */
 import "./App.css";
 
 class App extends Component {
   constructor() {
     super();
-
     this.state = {
-      name: "Jorge",
-      company: "Santander",
+      monsters: [],
+      searchField: "",
     };
+    console.log("Constructor State");
   }
 
+  componentDidMount() {
+    console.log("Component DidMount");
+    fetch("https://jsonplaceholder.typicode.com/users")
+      .then((response) => response.json())
+      .then((users) =>
+        this.setState(
+          () => {
+            return { monsters: users };
+          },
+          () => {
+            console.log(this.state);
+          }
+        )
+      );
+  }
+
+  onSearchChange = (event) => {
+    console.log(event.target.value);
+    const searchField = event.target.value.toLowerCase();
+    this.setState(() => {
+      return { searchField };
+    });
+  };
+
   render() {
+    console.log("Render");
+
+    const { monsters, searchField } = this.state;
+    const { onSearchChange } = this;
+
+    const filteredMonsters = monsters.filter((monster) => {
+      return monster.name.toLowerCase().includes(searchField);
+    });
+
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Hi {this.state.name}, I work at {this.state.company}{" "}
-          </p>
-          <button
-            onClick={() => {
-              this.setState({ name: "Pulgui" });
-              console.log(this.state);
-            }}
-          >
-            Change Name
-          </button>
-        </header>
+        <input
+          className="search-bpx"
+          type="search"
+          placeholder="search monsters"
+          onChange={onSearchChange}
+        />
+        {filteredMonsters.map((monster) => {
+          return (
+            <div key={monster.id}>
+              <h1>{monster.name}</h1>
+            </div>
+          );
+        })}
       </div>
     );
   }
